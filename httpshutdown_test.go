@@ -1,3 +1,7 @@
+// Most of these tests start up a real *http.Server and make sure
+// things work as expected. I could have used a mock but since this
+// code really is just a convenience wrapper for starting and stopping
+// a server, I wanted to make sure it actually works in practice.
 package httpshutdown
 
 import (
