@@ -83,7 +83,7 @@ func TestContextTimeoutError(t *testing.T) {
 	if err == nil {
 		t.Errorf("expected to get a non-nil shutdown error")
 	} else {
-		if got, want := err.Error(), "requests did not complete before shutdown finished: context deadline exceeded"; got != want {
+		if got, want := err.Error(), "context deadline exceeded"; got != want {
 			t.Errorf("got error %q, wanted %q", got, want)
 		}
 	}
@@ -109,7 +109,7 @@ func TestListenAndServeError(t *testing.T) {
 	}
 	shutdown := make(chan os.Signal)
 	err := ListenAndServe(mockServer, 0, shutdown)
-	if got, want := err.Error(), "server exited unexpectedly: hello there"; got != want {
+	if got, want := err.Error(), "hello there"; got != want {
 		t.Errorf("error returned had text %q, wanted %q", got, want)
 	}
 }
