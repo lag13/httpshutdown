@@ -2,7 +2,7 @@ language: go
 go_import_path: github.com/lag13/httpshutdown
 go:
   - 1.8.x
-  - tip
+  - master
 
 script:
   - go test -v ./...
