@@ -1,3 +1,5 @@
+// Package httpshutdown provides a utility function to start and
+// gracefully shut down a server.
 package httpshutdown
 
 import (
@@ -7,33 +9,19 @@ import (
 	"time"
 )
 
-// httpServer is used to make one particular unit test (where the
-// server errors when doing ListenAndServe) simpler. In practice you
-// would pass in an *http.Server.
-type httpServer interface {
-	ListenAndServe() error
-	Shutdown(context.Context) error
-}
-
 // ListenAndServe will start a server and shut it down within a
-// specified timeout if it recieves any message on the "shutdown"
+// specified timeout if it receives any message on the "shutdown"
 // channel.
-func ListenAndServe(srv httpServer, timeout time.Duration, shutdown chan os.Signal) error {
-	serverErr := make(chan error)
+func ListenAndServe(srv *http.Server, timeout time.Duration, shutdown chan os.Signal) error {
+	shutdownErr := make(chan error)
 	go func() {
-		if err := srv.ListenAndServe(); err != http.ErrServerClosed {
-			serverErr <- err
-		}
-	}()
-	select {
-	case <-shutdown:
+		<-shutdown
 		ctx, cancel := context.WithTimeout(context.Background(), timeout)
 		defer cancel()
-		if err := srv.Shutdown(ctx); err != nil {
-			return err
-		}
-	case err := <-serverErr:
+		shutdownErr <- srv.Shutdown(ctx)
+	}()
+	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
 		return err
 	}
-	return nil
+	return <-shutdownErr
 }
